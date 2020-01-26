@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: sample-pod
+spec:
+  containers:
+    - name: nginx-container
+      image: nginx:1.12
+#      command: ["/bin/sleep"] # ENTRYPOINT命令に対応
+#      args: ["3600"] # CMD命令に対応
+#  hostAliases:
+#    - ip: 8.8.8.8
+#      hostnames:
+#        - google-dns
+#        - google-public-dns
