@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: sample-externalip
+spec:
+  type: ClusterIP # ここはClusterIPのままという点に注意
+  externalIPs:
+    - 10.240.0.7 # NodeのIPアドレスを指定する
+    - 10.240.0.8
+  ports:
+    - name: "http-port"
+      protocol: "TCP"
+      port: 8080 # NodeのIPで受けるPort番号とClusterIPで受けるPort番号の両方をかねる模様
+      targetPort: 80
+  selector:
+    app: sample-app

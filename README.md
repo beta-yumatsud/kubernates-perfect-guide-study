@@ -1,2 +1,2 @@
-# kubernates-perfect-guide-study
-Kubernates完全ガイドという本を読んで動かした時のもの
+# kubernetes-perfect-guide-study
+Kubernetes完全ガイドという本を読んで動かした時のもの

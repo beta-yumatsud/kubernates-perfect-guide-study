@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: sample-lb
+spec:
+  type: LoadBalancer
+#  loadBalancerIP: 197.89.0.128 # 静的なIPを指定可能
+  ports:
+    - name: "http-port"
+      protocol: "TCP"
+      port: 8080 # LoadBalancerが払い出す仮想IPとClusterIPで受けるPort番号
+      targetPort: 80
+      nodePort: 30082 # NodePortも自動的に割り当てられるため指定可能
+  selector:
+    app: sample-app
+#  loadBalancerSourceRanges: # アクセス制御。指定したレンジからのみアクセス可能。GKEとかだとこれを指定しないと全世界からアクセス可能みたい
+#    - 10.0.0.0/8

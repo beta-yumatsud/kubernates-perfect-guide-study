@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: sample-clusterip
+spec:
+  type: ClusterIP
+  ports:
+    - name: "http-port"
+      protocol: "TCP"
+      port: 8080 # ClusterIPで受けるPort番号
+      targetPort: 80 # コンテナで受けるPort番号(転送先)
+  selector:
+    app: sample-app

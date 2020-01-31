@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: sample-nodeport
+spec:
+  type: NodePort
+  ports:
+    - name: "http-port"
+      protocol: "TCP"
+      port: 8080 # 変わらずClusterIPで受けるPort番号
+      targetPort: 80
+      nodePort: 30080 # 全k8s Nodeで受け付けるIPアドレスで指定
+  selector:
+    app: sample-app
