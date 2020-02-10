@@ -90,5 +90,64 @@ Config & Storageリソースについて
     * `kubectl create configmap --save-config web-config --from-literal=connection.max=100 --from-literal=connection.min=10` 的な
   * `-f`（マニフェストファイル）
 * 1つのConfigMapにつき格納可能なデータサイズは1MB
+* ConfigMapをコンテナから利用する場合は、Secretと同じく大きく分けて下記の2パターン
+  * 環境変数として渡す
+    * Secretの特定のkeyのみ
+      * `spec.containers[].env` の `valueFrom.configMapKeyRef` を使って指定
+    * Secretの全てのkey
+      * `spec.containers[].envFrom` の `configMapRef` を使って指定
+  * Volumeとしてマウントする（複数行にわたるnginx.confとかで使う）
+    * Secretの特定のkeyのみ
+      * `spec.volumes[]` の `configMap.items[]` を使って指定
+    * Secretの全てのkey
+      * `spec.volumes[]` の `configMap` を使って指定
 
 ### PersistentVolumeClaim
+* 永続化領域を利用するためのリソース
+* そもそもVolume、PersistentVolume、PersistentVolumeClaimのの違い
+  * Volumeはあらかじめ用意された利用可能なボリュームをマニフェストに指定して利用可能にするもの（故にVolume自体の作成や変更などの操作はできない
+  * PersistentVolumeは外部の永続ボリュームを提供するシステムと連携して、ボリュームの作成や削除などの操作を行うもの（マニフェストなどからリソースを別途作成するイメージ）
+  * PersistentVolumeClaimはPersistentVolumeリソースの中からアサインするためのリソース
+    * PersistentVolumeはクラスタにボリュームを登録するだけなので、実際にPodから利用するにはこれを定義してい利用する必要がある
+    * Dynamic Provisioning機能は、PersistentVolumeClaimを利用するタイミングで、PersistentVolumeを動的に作成可能
+
+
+### Volume
+* 下記のような様々なプラグインを用意
+  * emptyDir
+    * Pod用の一時的なディスク領域として利用可能
+  * hostPath
+    * Node上の任意の領域をコンテナにマッピングする
+  * downwardAPI
+    * Podの情報などをファイルとして配置する
+  * projected
+    * Secret/ConfigMap/downwardAPI/serviceAccountTokenのボリュームマウントを1箇所のディレクトリにに集約する
+  * nfs
+  * iscsi
+  * cephfs
+
+### PersistentVolume
+* ネットワーク越しにディスクをアタッチするタイプのディスクになるよう
+* 作成する際には下記のような項目の設定が可能
+  * ラベル
+    * 割り当てを行う際に目印となるものを付けておこう（type, envなどなど）
+  * 容量
+    * Dynamic Provisioningを利用できない環境では小さめのPersistentVolumeを用意しておくこと
+  * アクセスモード
+  * ReadWriteOnce(RWO)、ReadWriteMany(RWM、GCPやAWSなどでは許可されていない)、ReadOnlyMany(ROM)などがある
+  * Reclaim Policy
+    * 利用し終わったあとの処理方法を制御するポリシー、`spec.persistentVolumeReclaimPolicy`を下記の3つから指定可能
+      * Delete
+        * 実態の削除
+        * GCPやAWSなどで確保される外部ボリュームのDynamic Provisioning時に利用されることが多い
+      * Retain
+        * 実際を消さずに保持
+        * 他の既存のPersistentVolumeClaimによって再度マウントされることはないみたい（新規ではあり）
+      * Recycle
+        * PersistentVolumeのデータを削除し、再利用可能な状態にする
+        * 他のPersistentVolumeClaimによって再度マウントされえる
+        * ただし、将来のK8sにて廃止が検討されているので、Dynamic Provisioningを利用すること
+  * マウントオプション
+  * StorageClass
+    * 
+  * 各プラグインに特有の設定
