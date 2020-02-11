@@ -102,8 +102,7 @@ Config & Storageリソースについて
     * Secretの全てのkey
       * `spec.volumes[]` の `configMap` を使って指定
 
-### PersistentVolumeClaim
-* 永続化領域を利用するためのリソース
+### 永続化領域
 * そもそもVolume、PersistentVolume、PersistentVolumeClaimのの違い
   * Volumeはあらかじめ用意された利用可能なボリュームをマニフェストに指定して利用可能にするもの（故にVolume自体の作成や変更などの操作はできない
   * PersistentVolumeは外部の永続ボリュームを提供するシステムと連携して、ボリュームの作成や削除などの操作を行うもの（マニフェストなどからリソースを別途作成するイメージ）
@@ -126,7 +125,7 @@ Config & Storageリソースについて
   * iscsi
   * cephfs
 
-### PersistentVolume
+### PersistentVolume(PV)
 * ネットワーク越しにディスクをアタッチするタイプのディスクになるよう
 * 作成する際には下記のような項目の設定が可能
   * ラベル
@@ -149,5 +148,24 @@ Config & Storageリソースについて
         * ただし、将来のK8sにて廃止が検討されているので、Dynamic Provisioningを利用すること
   * マウントオプション
   * StorageClass
-    * 
   * 各プラグインに特有の設定
+
+### PersistentVolumeClaim(PVC)
+* 永続化領域の要求を行うリソース
+  * PersistentVolumeはPVC経由で利用する形になる
+* PVCを作成する際には下記のような項目が設定可能で、いずれもPersistentVolumeで定義した値。
+  * ラベルセレクタ
+  * 容量
+  * アクセスモード
+  * StorageClass
+    * ユーザがPVCを使って Dynamic Provisioning でPVを要求する際にどういったディスクが欲しいのかを指定するために利用される
+* 注意としては、PVCの容量が、PersistentVolumeの容量よりも小さい小さければ割り当てられてしまう点（要は容量にあまりが出ちゃって無駄が発生しちゃうよーということ）
+* PodからPVCを利用するには `spec.volumes` に `persistentVolumeClaim.claimName` を指定する
+* Dynamic Provisioning
+  * これを使ったPVCの場合、PVCが発行されたタイミングで動的にPersistentVolumeを作成して割り当てる
+  * これにより「事前にPersistentVolumeを作成しておく必要がない」「容量の無駄が生じない」というメリットが出てくる
+  * ただし、多くのProvisionerが一部のアクセスモードしかサポートしていない点は注意す
+  * リサイズがサポートされいているボリュームプラグインを使用している時はPVCの拡張（リサイズ）を行うことが可能（PersistentVolumeClaimResize）
+* volumeMountsで利用可能なオプション
+  * readOnlyマウント（hostPathとかでホスト上の領域を見せる必要がある時は最低限これを指定するなどなど）
+  * subPath（特定のディレクトリをルートとしてマウントする機能）
