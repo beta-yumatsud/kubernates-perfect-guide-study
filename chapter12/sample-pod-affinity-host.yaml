@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: sample-pod-affinity-host
+spec:
+  containers:
+    - name: nginx-container
+      image: nginx:1.12
+  affinity:
+    podAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution: # 必須のスケジューリングポリシー
+        - topologyKey: failure-domain.beta.kubernetes.io/zone # どの範囲(ドメイン)をスケジューリング対象とするかを指定
+          labelSelector: # これを複数指定するとOR条件
+            matchExpressions: # 複数指定したらAND条件
+              - key: app
+                operator: In
+                values:
+                  - sample-app
+      preferredDuringSchedulingIgnoredDuringExecution: # 優先スケジューリングポリシー
+        - podAffinityTerm:
+            topologyKey: kubernetes.io/hostname # 同じhostへ
+            labelSelector:
+              matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                    - sample-app
+          weight: 1

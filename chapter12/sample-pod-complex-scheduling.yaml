@@ -1,0 +1,46 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: sample-pod-complex-scheduling
+spec:
+  containers:
+    - name: nginx-container
+      image: nginx:1.10
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: disktype
+                operator: In
+                values:
+                  - ssd
+                  - nvme
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - preference:
+            matchExpressions:
+              - key: disksize
+                operator: Gt
+                values:
+                  - "150"
+          weight: 1
+    podAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        - topologyKey: failure-domain.beta.kubernetes.io/zone
+          labelSelector:
+            matchExpressions:
+              - key: app
+                operator: In
+                values:
+                  - sample-app
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                    - sample-app
+            topologyKey: kubernetes.io/hostname
+          weight: 1

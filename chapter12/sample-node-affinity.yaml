@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: samlple-node-affinity
+spec:
+  containers:
+    - name: nginx-container
+      image: nginx:1.12
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution: # 必須のスケジューリングポリシー
+        nodeSelectorTerms: # 複数指定するとOR条件
+          - matchExpressions: # 複数指定するとAND条件
+              - key: disktype
+                operator: In
+                values:
+                  - hdd
+      preferredDuringSchedulingIgnoredDuringExecution: # 優先スケジューリングポリシー、複数指定すると重みづけで優先順位が決まる
+        - preference:
+            matchExpressions: # 複数指定するとAND条件
+              - key: kubernetes.io/hotsname
+                operator: In
+                values:
+                  - gke-k8s-default-pool-8fa84fa # 適当なものをつけることw
+          weight: 1
