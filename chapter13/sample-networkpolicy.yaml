@@ -1,0 +1,23 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: sample-networkpolicy
+  namespace: default # 作成するNameSpaceを選定
+spec:
+  podSelector:
+    matchLabels:
+      app: sample-app
+    # 設定する対象のPodをここに書く
+    # ラベルセレクタなので、複数のPodを対象にできる
+    # 他にもnamespaceSelectorやipBlockなどがある
+  policyTypes:
+    - Ingress # Ingressルールを作成する場合は明示
+    - Egress # Egressルールを作成する場合は明示
+  ingress:
+    - {}
+    # from: namespaceでセレクターっぽい
+    # ports: ここで許可する受信Port番号とプロトコルを書く
+  egress:
+    - {}
+    # to: 同上
+    # ports: ここで許可する受信Port番号とプロトコルを書く
