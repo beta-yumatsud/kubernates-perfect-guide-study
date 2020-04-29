@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: skaffold-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: skaffold-sample
+  template:
+    metadata:
+      labels:
+        app: skaffold-sample
+    spec:
+      containers:
+        - name: go-container
+          image: yumatsud/skaffold-sample
+          ports:
+            - containerPort: 80
