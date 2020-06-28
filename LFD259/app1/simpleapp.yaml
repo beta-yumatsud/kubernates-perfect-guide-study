@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: simpleapp
+  name: simpleapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: simpleapp
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: simpleapp
+    spec:
+      containers:
+      - image: yumatsud/simpleapp
+        name: simpleapp
+        readinessProbe:
+          periodSeconds: 5
+          exec:
+            command:
+              - cat
+              - /tmp/healthy
+        resources: {}
+      - image: k8s.gcr.io/goproxy:0.1
+        name: goproxy
+        ports:
+          - containerPort: 8080
+        readinessProbe:
+          tcpSocket:
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          tcpSocket:
+            port: 8080
+          initialDelaySeconds: 15
+          periodSeconds: 20
+status: {}

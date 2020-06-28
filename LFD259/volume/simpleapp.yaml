@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: simpleapp
+  name: simpleapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: simpleapp
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: simpleapp
+    spec:
+      containers:
+        - image: yumatsud/simpleapp
+          name: simpleapp
+          readinessProbe:
+            periodSeconds: 5
+            exec:
+              command:
+                - cat
+                - /tmp/healthy
+          resources: {}
+          volumeMounts:
+            - mountPath: /opt
+              name: nfs-vol
+        - image: k8s.gcr.io/goproxy:0.1
+          name: goproxy
+          ports:
+            - containerPort: 8080
+          readinessProbe:
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 20
+      volumes:
+        - name: nfs-vol
+          persistentVolumeClaim:
+            claimName: pvc-one
